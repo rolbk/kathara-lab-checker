@@ -40,7 +40,9 @@ class OSPFInterfaceCheck(AbstractCheck):
 
         interfaces = data.get("interfaces", {})
         if interface_name not in interfaces:
-            results.append(FailedCheck(base_desc, f"Interface {interface_name} not found"))
+            for key in expected.keys():
+                desc = f"{base_desc}: {key}"
+                results.append(FailedCheck(desc, f"Interface {interface_name} not found"))
             return results
 
         iface = interfaces[interface_name]

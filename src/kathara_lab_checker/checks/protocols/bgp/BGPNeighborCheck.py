@@ -69,35 +69,21 @@ class BGPNeighborCheck(AbstractCheck):
             )
             return results
 
-        router_neighbors = output.keys()
-        expected_neighbors = set(neighbor["ip"] for neighbor in neighbors)
-
-        if len(router_neighbors) > len(expected_neighbors):
-            results.append(
-                FailedCheck(
-                    f"Checking {device_name} BGP neighbors",
-                    f"{device_name} has {len(output) - len(neighbors)} extra BGP neighbors {router_neighbors - expected_neighbors}",
-                )
-            )
-
-        diff_neighbors = router_neighbors - expected_neighbors
-
-        if diff_neighbors:
-            results.append(
-                FailedCheck(
-                    f"Checking {device_name} BGP neighbors",
-                    f"{device_name} has extra BGP neighbors {diff_neighbors}",
-                )
-            )
-
         for neighbor in neighbors:
             neighbor_ip = neighbor["ip"]
             neighbor_asn = neighbor["asn"]
 
-            if not neighbor_ip in output:
+            check_description = f"{device_name} has bgp neighbor {neighbor_ip} AS{neighbor_asn}"
+
+            if neighbor_ip not in output:
+                results.append(
+                    FailedCheck(check_description,
+                                f"The peering between {device_name} and {neighbor_ip} is not configured.",
+                                )
+                )
                 results.append(
                     FailedCheck(
-                        f"Checking {device_name} BGP neighbors",
+                        f"{device_name} has bgp neighbor {neighbor_ip} AS{neighbor_asn} established",
                         f"The peering between {device_name} and {neighbor_ip} is not configured.",
                     )
                 )
@@ -105,7 +91,6 @@ class BGPNeighborCheck(AbstractCheck):
 
             peer = output[neighbor_ip]
 
-            check_description = f"{device_name} has bgp neighbor {neighbor_ip} AS{neighbor_asn}"
             if peer["remoteAs"] != neighbor_asn:
                 results.append(
                     FailedCheck(check_description,
@@ -124,7 +109,7 @@ class BGPNeighborCheck(AbstractCheck):
             else:
                 results.append(
                     FailedCheck(
-                        f"{device_name} has bgp neighbor {neighbor_ip} AS{neighbor_asn}",
+                        f"{device_name} has bgp neighbor {neighbor_ip} AS{neighbor_asn} established",
                         f"The session is configured but is in the {peer['state']} state",
                     )
                 )
