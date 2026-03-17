@@ -1,16 +1,20 @@
 from typing import Optional
 
 
+def _sanitize(s):
+    return " ".join(str(s).splitlines())
+
+
 def red(s):
-    return f"\033[91m {s}\033[00m"
+    return f"\033[91m {_sanitize(s)}\033[0m"
 
 
 def green(s):
-    return f"\033[92m {s}\033[00m"
+    return f"\033[92m {_sanitize(s)}\033[0m"
 
 
 def yellow(s):
-    return f"\033[93m {s}\033[00m"
+    return f"\033[93m {_sanitize(s)}\033[0m"
 
 
 def get_output(exec_output):

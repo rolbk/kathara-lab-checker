@@ -22,6 +22,7 @@ from .model.TestCollector import TestCollector
 from .excel_utils import write_final_results_to_excel, write_result_to_excel
 from .foundation.checks.CheckFactory import CheckFactory
 from .foundation.model.CheckResult import CheckResult
+from .utils import green, red
 
 VERSION = "0.1.13"
 CURRENT_LAB: Optional[Lab] = None
@@ -111,8 +112,10 @@ def run_on_single_network_scenario(
 
     total_tests = len(test_collector.tests[lab_name])
     test_results = list(map(lambda x: x.passed, test_collector.tests[lab_name]))
+    passed_count = test_results.count(True)
+    color = green if passed_count == total_tests else red
     logger.info(f"Total Tests: {total_tests}")
-    logger.info(f"Passed Tests: {test_results.count(True)}/{total_tests}")
+    logger.info(f"Passed Tests:{color(f'{passed_count}/{total_tests}')}")
 
     if report_type != "none":
         logger.info(f"Writing test report for {lab_name} in: {lab_path} as {report_type.upper()} report...")
